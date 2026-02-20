@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OMSC - Records</title>
+<link rel="stylesheet" href="recordsadmin.css">
+</head>
+<body>
+
+<!-- TOGGLE -->
+<input type="checkbox" id="menuToggle">
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <label for="menuToggle" class="menu-icon">☰</label>
+    <div class="system-title">OMSC - Clinic Management System</div>
+    <div class="user-role">Administrator ▾</div>
+</div>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="logo">
+            <h2>OMSC</h2>
+            <p>Medical & Dental Unit Scanner</p>
+        </div>
+
+        <ul class="nav">
+            <li><a href="dashboardadmin.html">Dashboard</a></li>
+            <li class="active"><a href="recordsadmin.html">Records</a></li>
+            <li><a href="doctorstaffadmin.html">Doctor / Staff</a></li>
+            <li><a href="#">Users</a></li>
+            <li><a href="#">Medicines</a></li>
+            <li><a href="#">Messages <span class="dot"></span></a></li>
+        </ul>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <h2 class="page-title">Records List</h2>
+
+        <div class="table-header">
+            <button class="add-btn">+ Add New Client</button>
+        </div>
+
+        <div class="table-controls">
+            <div>
+                Show 
+                <select>
+                    <option>10</option>
+                    <option>25</option>
+                    <option>50</option>
+                </select>
+                Entries
+            </div>
+
+            <div class="search">
+                Search <input type="text">
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Date</th>
+                <th>
+                    Department
+                    <select class="dept-filter">
+                        <option hidden selected></option>
+                        <option>BSIT</option>
+                        <option>BSMID</option>
+                        <option>BSED</option>
+                        <option>HIGH SCHOOL</option>
+                        <option>JUNIOR HIGH</option>
+                    </select>
+                </th>
+                <th>Purpose</th>
+                <th>Action</th>
+            </tr>
+
+            <tr>
+                <td>1</td>
+                <td>Cj O. Damalin</td>
+                <td>damalin@gmail.com</td>
+                <td>02/18/2026</td>
+                <td>BSIT</td>
+                <td>Check Up</td>
+                <td>
+                    <select class="action">
+                        <option hidden selected>Action</option>
+                        <option>Edit</option>
+                        <option>Delete</option>
+                        <option>View Details</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
+                <td>2</td>
+                <td>Russel James C. Fua</td>
+                <td>russel@gmail.com</td>
+                <td>02/18/2026</td>
+                <td>BSIT</td>
+                <td>Headache</td>
+                <td>
+                    <select class="action">
+                        <option hidden selected>Action</option>
+                        <option>Edit</option>
+                        <option>Delete</option>
+                        <option>View Details</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

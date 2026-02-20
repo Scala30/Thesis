@@ -1,0 +1,187 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* HIDE CHECKBOX */
+#menuToggle {
+    display: none;
+}
+
+/* ================= TOP BAR ================= */
+.topbar {
+    height: 50px;
+    background: #0c2d6b;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.menu-icon {
+    font-size: 22px;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.system-title {
+    flex: 1;
+    font-weight: bold;
+}
+
+.user-role {
+    font-size: 14px;
+}
+
+/* ================= LAYOUT ================= */
+.container {
+    display: flex;
+    height: calc(100vh - 50px);
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar {
+    width: 240px;
+    background: #c9c9c9;
+    padding: 20px 0;
+    position: fixed;
+    top: 50px;
+    left: -240px;
+    height: calc(100vh - 50px);
+    transition: 0.3s ease;
+}
+
+/* SHOW SIDEBAR WHEN TOGGLED */
+#menuToggle:checked ~ .container .sidebar {
+    left: 0;
+}
+
+/* LOGO */
+.logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo h2 {
+    color: #0c2d6b;
+}
+
+.logo p {
+    margin-top: 5px;
+    font-size: 13px;
+    color: #0c2d6b;
+}
+
+.logo-right {
+    width: 45px;
+    margin-left: 10px;
+    margin-bottom: -10px;
+}
+
+/* NAVIGATION */
+.nav {
+    list-style: none;
+}
+
+.nav li {
+    padding: 15px 20px;
+    cursor: pointer;
+}
+
+.nav li.active {
+    background: #0c2d6b;
+    color: white;
+}
+
+/* SMALL GREEN DOT (messages) */
+.dot-small {
+    height: 8px;
+    width: 8px;
+    background: green;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+/* ================= CONTENT ================= */
+.content {
+    flex: 1;
+    background: #bcbcbc;
+    padding: 20px;
+    margin-left: 0;
+    transition: 0.3s ease;
+}
+
+/* MOVE CONTENT WHEN SIDEBAR SHOWS */
+#menuToggle:checked ~ .container .content {
+    margin-left: 240px;
+}
+
+/* ================= PAGE HEADER ================= */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.back-btn {
+    background: #1e2b44;
+    color: white;
+    padding: 6px 14px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.back-btn:hover {
+    background: #142033;
+}
+
+/* ================= GRID ================= */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+/* ================= BOX ================= */
+.box {
+    background: #d6d6d6;
+    padding: 20px;
+}
+
+.box h3 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+/* ================= LIST ================= */
+.box ul {
+    list-style: none;
+}
+
+.box ul li {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #999;
+}
+
+/* ================= SEVERITY DOTS ================= */
+.dot {
+    height: 14px;
+    width: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.minor { background: #6fa27b; }
+.moderate { background: #b88a0a; }
+.severe { background: #a55252; }
+.critical { background: #5c4a4a; }

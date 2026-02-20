@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OMSC - New Doctor / Staff</title>
+<link rel="stylesheet" href="doctorstaffadmin.css">
+</head>
+<body>
+
+<!-- TOGGLE -->
+<input type="checkbox" id="menuToggle">
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <label for="menuToggle" class="menu-icon">☰</label>
+    <div class="system-title">OMSC - Clinic Management System</div>
+    <div class="user-role">Administrator ▾</div>
+</div>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="logo">
+            <h2>OMSC</h2>
+            <p>Medical & Dental Unit Scanner</p>
+        </div>
+
+        <ul class="nav">
+            <li><a href="dashboardadmin.html">Dashboard</a></li>
+            <li><a href="recordsadmin.html">Records</a></li>
+            <li class="active"><a href="doctorstaffadmin.html">Doctor / Staff</a></li>
+            <li><a href="#">Users</a></li>
+            <li><a href="#">Medicines</a></li>
+            <li><a href="#">Messages <span class="dot"></span></a></li>
+        </ul>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+        <h2 class="page-title">New Doctor / Staff</h2>
+
+        <div class="form-container">
+
+            <div class="form-left">
+
+                <label>First Name</label>
+                <input type="text">
+
+                <label>Middle Name (optional)</label>
+                <input type="text">
+
+                <label>Last Name</label>
+                <input type="text">
+
+                <label>Contact Number</label>
+                <input type="text">
+
+                <label>Campus</label>
+                <select>
+                    <option hidden selected></option>
+                    <option>Main Campus</option>
+                    <option>North Campus</option>
+                </select>
+
+                <label>Designation</label>
+                <select>
+                    <option hidden selected></option>
+                    <option>Doctor</option>
+                    <option>Nurse</option>
+                    <option>Staff</option>
+                </select>
+
+            </div>
+
+            <div class="form-right">
+
+                <label>Email</label>
+                <input type="email">
+
+                <label>Password</label>
+                <input type="password">
+
+                <label>Avatar</label>
+                <input type="file">
+
+                <div class="avatar-preview">
+                    <div class="avatar-circle"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

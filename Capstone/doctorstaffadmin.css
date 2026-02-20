@@ -1,0 +1,165 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* TOGGLE */
+#menuToggle {
+    display: none;
+}
+
+/* TOPBAR */
+.topbar {
+    height: 50px;
+    background: #0c2d6b;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+.menu-icon {
+    font-size: 22px;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.system-title {
+    flex: 1;
+    font-weight: bold;
+}
+
+.user-role {
+    font-size: 14px;
+}
+
+/* LAYOUT */
+.container {
+    display: flex;
+    margin-top: 50px;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 240px;
+    background: #c9c9c9;
+    padding: 20px 0;
+    position: fixed;
+    top: 50px;
+    left: -240px;
+    height: calc(100vh - 50px);
+    transition: 0.3s ease;
+    z-index: 999;
+}
+
+#menuToggle:checked ~ .container .sidebar {
+    left: 0;
+}
+
+/* NAV */
+.nav {
+    list-style: none;
+}
+
+.nav li {
+    padding: 15px 20px;
+}
+
+.nav li a {
+    text-decoration: none;
+    color: black;
+    display: block;
+}
+
+.nav li:hover {
+    background: #0c2d6b;
+}
+
+.nav li:hover a {
+    color: white;
+}
+
+.nav li.active {
+    background: #0c2d6b;
+}
+
+.nav li.active a {
+    color: white;
+}
+
+/* CONTENT */
+.content {
+    flex: 1;
+    background: #f2f2f2;
+    padding: 30px;
+    width: 100%;
+    transition: 0.3s ease;
+}
+
+#menuToggle:checked ~ .container .content {
+    margin-left: 240px;
+}
+
+.page-title {
+    margin-bottom: 25px;
+}
+
+/* FORM LAYOUT */
+.form-container {
+    display: flex;
+    gap: 40px;
+    background: white;
+    padding: 30px;
+    border: 1px solid #ccc;
+}
+
+.form-left,
+.form-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input,
+select {
+    padding: 10px;
+    border: 1px solid #999;
+}
+
+/* AVATAR */
+.avatar-preview {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.avatar-circle {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    border: 2px solid #333;
+    background: #cfd8dc;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .form-container {
+        flex-direction: column;
+    }
+
+    #menuToggle:checked ~ .container .content {
+        margin-left: 0;
+    }
+}

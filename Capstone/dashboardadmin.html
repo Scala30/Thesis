@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OMSC - Dashboard</title>
+    <link rel="stylesheet" href="dashboardamin.css">
+</head>
+<body>
+
+<!-- TOGGLE -->
+<input type="checkbox" id="menuToggle">
+
+<!-- TOPBAR -->
+<div class="topbar">
+    <label for="menuToggle" class="menu-icon">☰</label>
+    <div class="system-title">OMSC - Clinic Management System</div>
+    <div class="user-role">Administrator ▾</div>
+</div>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="logo">
+            <h2>OMSC</h2>
+            <p>Medical & Dental Unit Scanner</p>
+        </div>
+
+        <ul class="nav">
+            <li class="active"><a href="dashboardadmin.html">Dashboard</a></li>
+            <li><a href="recordsadmin.html">Records</a></li>
+            <li><a href="#">Doctor / Staff</a></li>
+            <li><a href="#">Users</a></li>
+            <li><a href="#">Medicines</a></li>
+            <li><a href="#">Messages <span class="dot"></span></a></li>
+        </ul>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+        <h2 class="page-title">Real-Time Statistics</h2>
+
+        <!-- CARDS -->
+        <div class="cards">
+            <div class="card green">
+                <h1>380</h1>
+                <p>Total Scanned</p>
+            </div>
+
+            <div class="card red">
+                <h1>6</h1>
+                <p>Total Client Staffs</p>
+            </div>
+
+            <div class="card brown">
+                <h1>2</h1>
+                <p>System Admins</p>
+            </div>
+        </div>
+
+        <!-- LOWER SECTION -->
+        <div class="lower">
+
+            <div class="box">
+                <div class="donut">76%</div>
+                <p>Student Scanning Completion (%)</p>
+            </div>
+
+            <div class="box table-box">
+                <table>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Conditions</th>
+                        <th>Counts</th>
+                    </tr>
+                    <tr>
+                        <td>Minor</td>
+                        <td>Headache</td>
+                        <td>210</td>
+                    </tr>
+                    <tr>
+                        <td>Moderate</td>
+                        <td>Asthma</td>
+                        <td>85</td>
+                    </tr>
+                    <tr>
+                        <td>Critical</td>
+                        <td>Severe Allergy</td>
+                        <td>10</td>
+                    </tr>
+                </table>
+
+                <a href="dashboardviewalladmin.html" class="view">View All</a>
+            </div>
+
+            <div class="box">
+                <div class="donut light">58%</div>
+                <p>Clinic Visit Rate (%)</p>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
