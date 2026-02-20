@@ -1,0 +1,119 @@
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+body {
+	background-color: gray;
+	background-image: url('https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fl450v.alamy.com%2F450v%2Fwbj6k2%2F40th-birthday-gold-balloon-background-happy-birthday-3d-rendering-wbj6k2.jpg&f=1&nofb=1&ipt=89de5aa41c9824bad034519ac34eb1ddddf55d6dbf7860ba090067fca3e1d856&ipo=images');
+	background-repeat: no-repeat;
+	/* background-size: cover; */
+	background-position: top left;
+	font-family: sans-serif;
+	padding-left: 56px;
+	padding-right: 56px;
+	padding-bottom: 56px;
+}
+h1 {
+	color: green;
+	font-size: 48px;
+	font-style: normal;
+	text-decoration: underline;
+	text-transform: uppercase;
+	text-align: center;
+	margin-top: 60px;
+	margin-bottom: 48px;
+}
+
+.ghbabe {
+	width: 600px;
+	/* border-width: 4px;
+	border-color: red;
+	border-style: dotted; */
+	/* border-top-width: 4px;
+	border-top-color: green;
+	border-top-style: solid; */
+	/* border: 4px solid yellow; */
+	/* border-radius: 50px; */
+	border-top-right-radius: 40px;
+}
+
+.image2 {
+	width: 300px;
+	position: relative;
+	top: 120px;
+	left: 300px;
+}
+.para1 {
+	color: orange;
+	font-weight: bold;
+	line-height: 40px;
+	font-size: 32px;
+	margin-bottom: 49px;
+	text-align: justify;
+}
+
+.para2 {
+	margin-top: 38px;
+}
+table,
+td,
+tr,
+th {
+	width: 600px;
+	border-width: 2px;
+	border-style: solid;
+	border-bottom: gray;
+	text-align: left;
+}
+
+/* th {
+	border-width: 2px;
+	border-style: solid;
+	border-bottom: gray;
+}
+
+tr {
+	border-width: 2px;
+	border-style: solid;
+	border-bottom: gray;
+}
+
+td {
+	border-width: 2px;
+	border-style: solid;
+	border-bottom: gray;
+} */
+
+h3 {
+	margin-top: 60px;
+	margin-bottom: 32px;
+}
+
+.nicknames {
+	margin-top: 32px;
+	list-style: square;
+}
+
+.nicknames li {
+	padding-left: 32px;
+	display: inline;
+}
+ol {
+	margin-bottom: 32px;
+	list-style: upper-alpha;
+}
+
+.getstarted {
+	background-color: yellow;
+	padding-left: 22px;
+	padding-right: 22px;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	text-decoration: none;
+	border-radius: 40px;
+	margin: auto;
+	width: 180px;
+	display: block;
+}

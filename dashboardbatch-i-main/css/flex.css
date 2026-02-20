@@ -1,0 +1,32 @@
+* {
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+.flex-container {
+	display: flex;
+	flex-direction: row;
+	gap: 24px;
+	height: 600px;
+	background-color: azure;
+	justify-content: space-evenly;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.di1 {
+	height: 100px;
+	background-color: red;
+	font-size: 32px;
+	color: #fff;
+	flex: 1;
+}
+.div2 {
+	flex: 1;
+	width: 100px;
+	height: 100px;
+	background-color: rgb(15, 18, 212);
+	font-size: 32px;
+	color: #fff;
+}
