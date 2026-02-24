@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Scanner & OCR (with Dynamsoft)</title>
+    <title>Web Scanner & OCR (with Dynamsoft + Python)</title>
     <!-- Dynamsoft Web Twain library -->
     <script src="https://unpkg.com/dwt@18.4/dist/dynamsoft.webtwain.min.js"></script>
     <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
-        /* (same as before) */
         body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f9; }
         .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         h1 { color: #333; }
@@ -33,13 +32,14 @@
     
     <div class="note">
         <strong>⚠️ Direct scanning in the browser requires extra software.</strong><br>
-        • The <strong>“Scan with Dynamsoft”</strong> button will prompt you to install the Dynamsoft Service (if not already installed).<br>
-        • After installation, it can access your Epson L3210 via TWAIN / WIA / SANE.<br>
-        • A free 30‑day trial license is included below (replace with your own key for production).
+        • <strong>“Scan with Dynamsoft”</strong> – installs the Dynamsoft Service (trial) to access scanners via TWAIN/WIA/SANE.<br>
+        • <strong>“Scan via Python”</strong> – requires you to run a local Python server (see instructions below).<br>
+        • <strong>“Upload Image”</strong> – works with any image file (e.g., from Epson Scan).
     </div>
 
     <div class="controls">
         <button id="btn-dynamsoft">📷 Scan with Dynamsoft</button>
+        <button id="btn-python-scan">🐍 Scan via Python</button>
         <button id="btn-upload" onclick="document.getElementById('file-input').click()">☁️ Upload Image</button>
         <input type="file" id="file-input" accept="image/*" style="display:none">
     </div>
@@ -72,27 +72,23 @@
         try {
             statusText.innerText = 'Initializing Dynamsoft...';
             
-            // If not already created, create the Web Twain object
             if (!DWObject) {
                 DWObject = await Dynamsoft.DWT.CreateDWTObjectEx({
                     WebTwainId: 'dwtcontrol'
                 });
             }
 
-            // Select source (scanner)
             const sources = await DWObject.GetSourceNames();
             if (sources.length === 0) {
                 alert('No scanner found. Make sure your Epson L3210 is connected and drivers are installed.');
                 return;
             }
 
-            // You could let the user choose, but for simplicity we pick the first one
             await DWObject.SelectSource(sources[0]);
             statusText.innerText = `Scanner selected: ${sources[0]}`;
 
-            // Acquire image (use default settings)
             await DWObject.AcquireImage({
-                IfShowUI: false,          // set to true to see scanner's own dialog
+                IfShowUI: false,
                 PixelType: Dynamsoft.DWT.EnumDWT_PixelType.TWPT_RGB,
                 Resolution: 200,
                 IfFeederEnabled: false,
@@ -100,21 +96,39 @@
                 IfDuplexEnabled: false
             });
 
-            // Get the acquired image as a Blob
             const imageBlob = await DWObject.SaveAsBlob(
-                0,  // index of the first image
+                0,
                 Dynamsoft.DWT.EnumDWT_ImageType.IT_JPG
             );
 
-            // Pass to OCR function
             processImage(imageBlob);
-
-            // Optional: remove images from buffer to free memory
             DWObject.RemoveAllImages();
         } catch (err) {
             console.error(err);
             statusText.innerText = 'Scan failed. See console.';
             alert('Error during scanning: ' + err.message + '\n\nMake sure the Dynamsoft Service is installed and the scanner is connected.');
+        }
+    });
+
+    // ==================== Python Local Server Integration ====================
+    const btnPythonScan = document.getElementById('btn-python-scan');
+    btnPythonScan.addEventListener('click', async () => {
+        statusText.innerText = "Contacting Python scanner server...";
+        try {
+            const response = await fetch('http://localhost:5000/scan');
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText);
+            }
+            const blob = await response.blob();
+            processImage(blob);
+        } catch (err) {
+            statusText.innerText = "Python scan failed.";
+            alert(
+                "Could not reach the Python server.\n" +
+                "Make sure it's running (python scanner_server.py) on port 5000.\n\n" +
+                "Error: " + err.message
+            );
         }
     });
 
@@ -150,5 +164,15 @@
             });
     }
 </script>
+
+<!-- Optional: instructions for running the Python server -->
+<div style="margin-top: 20px; font-size: 0.9em; color: #555; border-top: 1px solid #ccc; padding-top: 10px;">
+    <strong>Python server setup:</strong><br>
+    1. Install Python and run: <code>pip install flask flask-cors pillow pyinsane2</code><br>
+    2. Save the <a href="#"
+       onclick="alert('Save this as scanner_server.py:\n\nfrom flask import Flask, send_file\nfrom flask_cors import CORS\nimport pyinsane2\nfrom PIL import Image\nimport io\n\napp = Flask(__name__)\nCORS(app)\n\ndef scan_document():\n    pyinsane2.init()\n    try:\n        devices = pyinsane2.get_devices()\n        if not devices:\n            raise Exception(\"No scanner found\")\n        scanner = devices[0]\n        scanner.options[\'resolution\'].value = 300\n        scanner.options[\'mode\'].value = \'Color\'\n        scanner.options[\'source\'].value = \'FlatBed\'\n        scan_session = scanner.scan(multiple=False)\n        scan_session.read()\n        img = scan_session.images[-1]\n        img_byte_arr = io.BytesIO()\n        img.save(img_byte_arr, format=\'JPEG\')\n        img_byte_arr.seek(0)\n        return img_byte_arr\n    finally:\n        pyinsane2.exit()\n\n@app.route(\'/scan\', methods=[\'GET\'])\ndef scan():\n    try:\n        image_data = scan_document()\n        return send_file(image_data, mimetype=\'image/jpeg\')\n    except Exception as e:\n        return str(e), 500\n\nif __name__ == \'__main__\':\n    app.run(host=\'127.0.0.1\', port=5000, debug=False)\n\n'); return false;">this Python script</a> as <code>scanner_server.py</code><br>
+    3. Run <code>python scanner_server.py</code> and keep it running.<br>
+    4. Click the <strong>“Scan via Python”</strong> button above.
+</div>
 </body>
 </html>
