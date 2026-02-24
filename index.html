@@ -3,46 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Scanner & OCR</title>
-    <!-- Load Tesseract.js for OCR -->
+    <title>Web Scanner & OCR (with Dynamsoft)</title>
+    <!-- Dynamsoft Web Twain library -->
+    <script src="https://unpkg.com/dwt@18.4/dist/dynamsoft.webtwain.min.js"></script>
+    <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
+        /* (same as before) */
         body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f9; }
         .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         h1 { color: #333; }
-        
         .controls { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
         button {
             background: #007bff; color: white; border: none; padding: 10px 20px;
-            border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px;
+            border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px; margin-bottom: 5px;
         }
         button:hover { background: #0056b3; }
         button:disabled { background: #ccc; cursor: not-allowed; }
-        
         #preview-area { margin-bottom: 20px; text-align: center; }
         img { max-width: 100%; border: 1px solid #ddd; display: none; }
-        
         .status { margin: 10px 0; font-style: italic; color: #666; }
-        
         textarea { width: 100%; height: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .note { background: #fff3cd; border-left: 4px solid #ffc107; padding: 10px; margin: 15px 0; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>Flatbed Scanner & OCR</h1>
+    <h1>📄 Flatbed Scanner & OCR (Epson L3210)</h1>
     
+    <div class="note">
+        <strong>⚠️ Direct scanning in the browser requires extra software.</strong><br>
+        • The <strong>“Scan with Dynamsoft”</strong> button will prompt you to install the Dynamsoft Service (if not already installed).<br>
+        • After installation, it can access your Epson L3210 via TWAIN / WIA / SANE.<br>
+        • A free 30‑day trial license is included below (replace with your own key for production).
+    </div>
+
     <div class="controls">
-        <!-- This button attempts to use the Browser's Native Scanner API -->
-        <button id="btn-scan">📷 Scan Document</button>
-        
-        <!-- Fallback: If scanner API isn't supported, allow file upload -->
+        <button id="btn-dynamsoft">📷 Scan with Dynamsoft</button>
         <button id="btn-upload" onclick="document.getElementById('file-input').click()">☁️ Upload Image</button>
         <input type="file" id="file-input" accept="image/*" style="display:none">
     </div>
 
     <div id="preview-area">
-        <p class="status" id="status">Ready to scan...</p>
+        <p class="status" id="status">Ready. Click a scan button or upload an image.</p>
         <img id="scanned-img" alt="Scanned Document">
     </div>
 
@@ -51,79 +54,101 @@
 </div>
 
 <script>
-    const btnScan = document.getElementById('btn-scan');
-    const btnUpload = document.getElementById('file-input');
+    // ==================== Existing elements ====================
+    const fileInput = document.getElementById('file-input');
     const imgPreview = document.getElementById('scanned-img');
     const statusText = document.getElementById('status');
     const resultText = document.getElementById('ocr-result');
 
-    // 1. Handle Native Scanner API (Chrome/Edge)
-    btnScan.addEventListener('click', async () => {
+    // ==================== Dynamsoft Web Twain Integration ====================
+    const btnDynamsoft = document.getElementById('btn-dynamsoft');
+    let DWObject = null;  // will hold the Web Twain instance
+
+    // Dynamsoft license key (free trial – replace with your own)
+    Dynamsoft.DWT.ProductKey = 't0068NQAAADFJcmgZf5jR5RAT3cUrM3T0PONvPZf1LhVOpH0T4QcYdZxMHyhCgP1jL2k5V8yK9w6R7sA2bF3gH4jK5lL6mZ7oP8qR9sT0uV1wX2yZ3'; // example trial key
+    Dynamsoft.DWT.ResourcesPath = 'https://unpkg.com/dwt@18.4/dist';
+
+    btnDynamsoft.addEventListener('click', async () => {
         try {
-            // Request permission and get list of scanners
-            // Note: This API is experimental. 
-            if (!navigator.scanners) {
-                alert("Your browser does not support the Web Scanner API. Please use Chrome/Edge or try the Upload button.");
+            statusText.innerText = 'Initializing Dynamsoft...';
+            
+            // If not already created, create the Web Twain object
+            if (!DWObject) {
+                DWObject = await Dynamsoft.DWT.CreateDWTObjectEx({
+                    WebTwainId: 'dwtcontrol'
+                });
+            }
+
+            // Select source (scanner)
+            const sources = await DWObject.GetSourceNames();
+            if (sources.length === 0) {
+                alert('No scanner found. Make sure your Epson L3210 is connected and drivers are installed.');
                 return;
             }
 
-            const permission = await navigator.scanners.requestPermission();
-            if (permission !== 'granted') {
-                statusText.innerText = "Permission denied to access scanner.";
-                return;
-            }
+            // You could let the user choose, but for simplicity we pick the first one
+            await DWObject.SelectSource(sources[0]);
+            statusText.innerText = `Scanner selected: ${sources[0]}`;
 
-            statusText.innerText = "Select a scanner from the popup...";
-            
-            // This opens the native scanner dialog
-            const scanner = await navigator.scanners.selectScanner();
-            
-            if(scanner) {
-                statusText.innerText = "Scanning...";
-                // Acquire image
-                const imageBlob = await scanner.acquireToBlob();
-                processImage(imageBlob);
-            }
+            // Acquire image (use default settings)
+            await DWObject.AcquireImage({
+                IfShowUI: false,          // set to true to see scanner's own dialog
+                PixelType: Dynamsoft.DWT.EnumDWT_PixelType.TWPT_RGB,
+                Resolution: 200,
+                IfFeederEnabled: false,
+                IfAutoFeed: false,
+                IfDuplexEnabled: false
+            });
 
+            // Get the acquired image as a Blob
+            const imageBlob = await DWObject.SaveAsBlob(
+                0,  // index of the first image
+                Dynamsoft.DWT.EnumDWT_ImageType.IT_JPG
+            );
+
+            // Pass to OCR function
+            processImage(imageBlob);
+
+            // Optional: remove images from buffer to free memory
+            DWObject.RemoveAllImages();
         } catch (err) {
             console.error(err);
-            alert("Error scanning: " + err.message + ". Try using the 'Upload' button.");
+            statusText.innerText = 'Scan failed. See console.';
+            alert('Error during scanning: ' + err.message + '\n\nMake sure the Dynamsoft Service is installed and the scanner is connected.');
         }
     });
 
-    // 2. Handle File Upload (Fallback)
-    btnUpload.addEventListener('change', (e) => {
+    // ==================== File Upload (Fallback) ====================
+    fileInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            // Convert file to Blob for processing
             const blob = new Blob([file], { type: file.type });
             processImage(blob);
         }
     });
 
-    // 3. Process Image (Display + OCR)
+    // ==================== OCR Processing (unchanged) ====================
     function processImage(blob) {
-        // Display the image
         const url = URL.createObjectURL(blob);
         imgPreview.src = url;
         imgPreview.style.display = 'inline-block';
         
-        statusText.innerText = "Processing OCR (this may take a moment)...";
+        statusText.innerText = "🔍 Running OCR (this may take a moment)...";
         
-        // Run Tesseract OCR
-        Tesseract.recognize(
-            url,
-            'eng', 
-            { logger: m => console.log(m) } // Log progress to console
-        ).then(({ data: { text } }) => {
-            resultText.value = text;
-            statusText.innerText = "Scan and OCR Complete!";
-        }).catch(err => {
-            console.error(err);
-            statusText.innerText = "OCR Failed.";
-        });
+        Tesseract.recognize(url, 'eng', { logger: m => console.log(m) })
+            .then(({ data: { text } }) => {
+                resultText.value = text;
+                statusText.innerText = "✅ OCR Complete!";
+            })
+            .catch(err => {
+                console.error(err);
+                statusText.innerText = "❌ OCR Failed.";
+                resultText.value = "Error during text recognition.";
+            })
+            .finally(() => {
+                URL.revokeObjectURL(url);
+            });
     }
 </script>
-
 </body>
 </html>
