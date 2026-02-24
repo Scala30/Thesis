@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web Scanner & OCR (with Dynamsoft + Python)</title>
-    <!-- Dynamsoft Web Twain library -->
-    <script src="https://unpkg.com/dwt@18.4/dist/dynamsoft.webtwain.min.js"></script>
+    <title>Scanner & OCR with Python Server</title>
     <!-- Tesseract.js for OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
     <style>
@@ -31,14 +29,12 @@
     <h1>📄 Flatbed Scanner & OCR (Epson L3210)</h1>
     
     <div class="note">
-        <strong>⚠️ Direct scanning in the browser requires extra software.</strong><br>
-        • <strong>“Scan with Dynamsoft”</strong> – installs the Dynamsoft Service (trial) to access scanners via TWAIN/WIA/SANE.<br>
-        • <strong>“Scan via Python”</strong> – requires you to run a local Python server (see instructions below).<br>
+        <strong>🔍 How to use:</strong><br>
+        • <strong>“Scan via Python”</strong> – requires a local Python server (see instructions below).<br>
         • <strong>“Upload Image”</strong> – works with any image file (e.g., from Epson Scan).
     </div>
 
     <div class="controls">
-        <button id="btn-dynamsoft">📷 Scan with Dynamsoft</button>
         <button id="btn-python-scan">🐍 Scan via Python</button>
         <button id="btn-upload" onclick="document.getElementById('file-input').click()">☁️ Upload Image</button>
         <input type="file" id="file-input" accept="image/*" style="display:none">
@@ -54,63 +50,13 @@
 </div>
 
 <script>
-    // ==================== Existing elements ====================
+    // ==================== Elements ====================
     const fileInput = document.getElementById('file-input');
     const imgPreview = document.getElementById('scanned-img');
     const statusText = document.getElementById('status');
     const resultText = document.getElementById('ocr-result');
 
-    // ==================== Dynamsoft Web Twain Integration ====================
-    const btnDynamsoft = document.getElementById('btn-dynamsoft');
-    let DWObject = null;  // will hold the Web Twain instance
-
-    // Dynamsoft license key (free trial – replace with your own)
-    Dynamsoft.DWT.ProductKey = 't0068NQAAADFJcmgZf5jR5RAT3cUrM3T0PONvPZf1LhVOpH0T4QcYdZxMHyhCgP1jL2k5V8yK9w6R7sA2bF3gH4jK5lL6mZ7oP8qR9sT0uV1wX2yZ3'; // example trial key
-    Dynamsoft.DWT.ResourcesPath = 'https://unpkg.com/dwt@18.4/dist';
-
-    btnDynamsoft.addEventListener('click', async () => {
-        try {
-            statusText.innerText = 'Initializing Dynamsoft...';
-            
-            if (!DWObject) {
-                DWObject = await Dynamsoft.DWT.CreateDWTObjectEx({
-                    WebTwainId: 'dwtcontrol'
-                });
-            }
-
-            const sources = await DWObject.GetSourceNames();
-            if (sources.length === 0) {
-                alert('No scanner found. Make sure your Epson L3210 is connected and drivers are installed.');
-                return;
-            }
-
-            await DWObject.SelectSource(sources[0]);
-            statusText.innerText = `Scanner selected: ${sources[0]}`;
-
-            await DWObject.AcquireImage({
-                IfShowUI: false,
-                PixelType: Dynamsoft.DWT.EnumDWT_PixelType.TWPT_RGB,
-                Resolution: 200,
-                IfFeederEnabled: false,
-                IfAutoFeed: false,
-                IfDuplexEnabled: false
-            });
-
-            const imageBlob = await DWObject.SaveAsBlob(
-                0,
-                Dynamsoft.DWT.EnumDWT_ImageType.IT_JPG
-            );
-
-            processImage(imageBlob);
-            DWObject.RemoveAllImages();
-        } catch (err) {
-            console.error(err);
-            statusText.innerText = 'Scan failed. See console.';
-            alert('Error during scanning: ' + err.message + '\n\nMake sure the Dynamsoft Service is installed and the scanner is connected.');
-        }
-    });
-
-    // ==================== Python Local Server Integration ====================
+    // ==================== Python Local Server ====================
     const btnPythonScan = document.getElementById('btn-python-scan');
     btnPythonScan.addEventListener('click', async () => {
         statusText.innerText = "Contacting Python scanner server...";
@@ -132,7 +78,7 @@
         }
     });
 
-    // ==================== File Upload (Fallback) ====================
+    // ==================== File Upload ====================
     fileInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
@@ -141,7 +87,7 @@
         }
     });
 
-    // ==================== OCR Processing (unchanged) ====================
+    // ==================== OCR Processing ====================
     function processImage(blob) {
         const url = URL.createObjectURL(blob);
         imgPreview.src = url;
@@ -165,12 +111,52 @@
     }
 </script>
 
-<!-- Optional: instructions for running the Python server -->
+<!-- Python server setup instructions -->
 <div style="margin-top: 20px; font-size: 0.9em; color: #555; border-top: 1px solid #ccc; padding-top: 10px;">
-    <strong>Python server setup:</strong><br>
+    <strong>🐍 Python server setup:</strong><br>
     1. Install Python and run: <code>pip install flask flask-cors pillow pyinsane2</code><br>
-    2. Save the <a href="#"
-       onclick="alert('Save this as scanner_server.py:\n\nfrom flask import Flask, send_file\nfrom flask_cors import CORS\nimport pyinsane2\nfrom PIL import Image\nimport io\n\napp = Flask(__name__)\nCORS(app)\n\ndef scan_document():\n    pyinsane2.init()\n    try:\n        devices = pyinsane2.get_devices()\n        if not devices:\n            raise Exception(\"No scanner found\")\n        scanner = devices[0]\n        scanner.options[\'resolution\'].value = 300\n        scanner.options[\'mode\'].value = \'Color\'\n        scanner.options[\'source\'].value = \'FlatBed\'\n        scan_session = scanner.scan(multiple=False)\n        scan_session.read()\n        img = scan_session.images[-1]\n        img_byte_arr = io.BytesIO()\n        img.save(img_byte_arr, format=\'JPEG\')\n        img_byte_arr.seek(0)\n        return img_byte_arr\n    finally:\n        pyinsane2.exit()\n\n@app.route(\'/scan\', methods=[\'GET\'])\ndef scan():\n    try:\n        image_data = scan_document()\n        return send_file(image_data, mimetype=\'image/jpeg\')\n    except Exception as e:\n        return str(e), 500\n\nif __name__ == \'__main__\':\n    app.run(host=\'127.0.0.1\', port=5000, debug=False)\n\n'); return false;">this Python script</a> as <code>scanner_server.py</code><br>
+    2. Save the following script as <code>scanner_server.py</code>:<br>
+    <pre style="background:#f4f4f4; padding:10px; border-radius:4px; overflow-x:auto;">
+from flask import Flask, send_file
+from flask_cors import CORS
+import pyinsane2
+from PIL import Image
+import io
+
+app = Flask(__name__)
+CORS(app)
+
+def scan_document():
+    pyinsane2.init()
+    try:
+        devices = pyinsane2.get_devices()
+        if not devices:
+            raise Exception("No scanner found")
+        scanner = devices[0]
+        scanner.options['resolution'].value = 300
+        scanner.options['mode'].value = 'Color'
+        scanner.options['source'].value = 'FlatBed'
+        scan_session = scanner.scan(multiple=False)
+        scan_session.read()
+        img = scan_session.images[-1]
+        img_byte_arr = io.BytesIO()
+        img.save(img_byte_arr, format='JPEG')
+        img_byte_arr.seek(0)
+        return img_byte_arr
+    finally:
+        pyinsane2.exit()
+
+@app.route('/scan', methods=['GET'])
+def scan():
+    try:
+        image_data = scan_document()
+        return send_file(image_data, mimetype='image/jpeg')
+    except Exception as e:
+        return str(e), 500
+
+if __name__ == '__main__':
+    app.run(host='127.0.0.1', port=5000, debug=False)
+    </pre>
     3. Run <code>python scanner_server.py</code> and keep it running.<br>
     4. Click the <strong>“Scan via Python”</strong> button above.
 </div>
