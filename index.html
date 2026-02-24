@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scanner & OCR</title>
+    <!-- Load Tesseract.js for OCR -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f9; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; }
+        
+        .controls { margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        button {
+            background: #007bff; color: white; border: none; padding: 10px 20px;
+            border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        
+        #preview-area { margin-bottom: 20px; text-align: center; }
+        img { max-width: 100%; border: 1px solid #ddd; display: none; }
+        
+        .status { margin: 10px 0; font-style: italic; color: #666; }
+        
+        textarea { width: 100%; height: 300px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Flatbed Scanner & OCR</h1>
+    
+    <div class="controls">
+        <!-- This button attempts to use the Browser's Native Scanner API -->
+        <button id="btn-scan">📷 Scan Document</button>
+        
+        <!-- Fallback: If scanner API isn't supported, allow file upload -->
+        <button id="btn-upload" onclick="document.getElementById('file-input').click()">☁️ Upload Image</button>
+        <input type="file" id="file-input" accept="image/*" style="display:none">
+    </div>
+
+    <div id="preview-area">
+        <p class="status" id="status">Ready to scan...</p>
+        <img id="scanned-img" alt="Scanned Document">
+    </div>
+
+    <h3>Extracted Text:</h3>
+    <textarea id="ocr-result" placeholder="Text will appear here..."></textarea>
+</div>
+
+<script>
+    const btnScan = document.getElementById('btn-scan');
+    const btnUpload = document.getElementById('file-input');
+    const imgPreview = document.getElementById('scanned-img');
+    const statusText = document.getElementById('status');
+    const resultText = document.getElementById('ocr-result');
+
+    // 1. Handle Native Scanner API (Chrome/Edge)
+    btnScan.addEventListener('click', async () => {
+        try {
+            // Request permission and get list of scanners
+            // Note: This API is experimental. 
+            if (!navigator.scanners) {
+                alert("Your browser does not support the Web Scanner API. Please use Chrome/Edge or try the Upload button.");
+                return;
+            }
+
+            const permission = await navigator.scanners.requestPermission();
+            if (permission !== 'granted') {
+                statusText.innerText = "Permission denied to access scanner.";
+                return;
+            }
+
+            statusText.innerText = "Select a scanner from the popup...";
+            
+            // This opens the native scanner dialog
+            const scanner = await navigator.scanners.selectScanner();
+            
+            if(scanner) {
+                statusText.innerText = "Scanning...";
+                // Acquire image
+                const imageBlob = await scanner.acquireToBlob();
+                processImage(imageBlob);
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Error scanning: " + err.message + ". Try using the 'Upload' button.");
+        }
+    });
+
+    // 2. Handle File Upload (Fallback)
+    btnUpload.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            // Convert file to Blob for processing
+            const blob = new Blob([file], { type: file.type });
+            processImage(blob);
+        }
+    });
+
+    // 3. Process Image (Display + OCR)
+    function processImage(blob) {
+        // Display the image
+        const url = URL.createObjectURL(blob);
+        imgPreview.src = url;
+        imgPreview.style.display = 'inline-block';
+        
+        statusText.innerText = "Processing OCR (this may take a moment)...";
+        
+        // Run Tesseract OCR
+        Tesseract.recognize(
+            url,
+            'eng', 
+            { logger: m => console.log(m) } // Log progress to console
+        ).then(({ data: { text } }) => {
+            resultText.value = text;
+            statusText.innerText = "Scan and OCR Complete!";
+        }).catch(err => {
+            console.error(err);
+            statusText.innerText = "OCR Failed.";
+        });
+    }
+</script>
+
+</body>
+</html>
